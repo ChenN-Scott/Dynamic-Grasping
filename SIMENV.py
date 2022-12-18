@@ -19,8 +19,8 @@ from math import pi, cos, sin, sqrt, atan, radians, degrees
 import tool
 
 # 图像尺寸
-IMAGEWIDTH = 640
-IMAGEHEIGHT = 480
+IMAGEWIDTH = 1280
+IMAGEHEIGHT = 960
 
 nearPlane = 0.01
 farPlane = 10
@@ -46,12 +46,12 @@ class SimEnv():
 
         global image_id
         image_id = 0
-        # 初始化panda机器人
-        self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
-
-        self.world_steps = 0
         self.target_initial_pose = [[0.3, 0.3, 0], [0, 0, 0, 1]]
         self.robot_initial_pose = [[0, 0, 0], [0, 0, 0, 1]]
+        self.target_id = 0
+
+        # 初始化panda机器人
+        self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
 
         # 加载相机
         self.viewMatrix = self.p.computeViewMatrix([0, 0, 0.7], [0, 0, 0], [0, 1, 0])
@@ -65,44 +65,27 @@ class SimEnv():
         self.conveyor_initial_pose = [[0.3, 0.3, self.conveyor_thickness/2], [0, 0, 0, 1]]
         self.conveyor = Conveyor(self.conveyor_initial_pose, self.conveyor_urdf)
 
-        self.target = 0
-
 
     def loadObjInURDF(self, object_name):
         """
-        以URDF的格式加载单个obj物体
-
-        idx: 物体id
+        加载单个obj物体
         """
-        # 获取物体文件
-
-        self.urdfs_filename = os.path.abspath('Models/{}'.format(object_name))
-        print('urdf filename = ', self.urdfs_filename[0])
-        
-        object_mesh_filepath = os.path.join(self.mesh_dir, '{}'.format(object_name), '{}.obj'.format(object_name))
-        
-        target_mesh = trimesh.load_mesh(object_mesh_filepath)
-        target_extents = target_mesh.bounding_box.extents.tolist()
-        floor_offset = target_mesh.bounds.min(0)[2]
-        
-        target_z = -target_mesh.bounds.min(0)[2] + self.conveyor_thickness
-        target_initial_pose = [[0.3, 0.3, target_z], [0, 0, 0, 1]]
-        print('object_mesh_filepath: ',object_mesh_filepath)
-        # target_urdf = mu.create_object_urdf(object_mesh_filepath, object_name,
-        #                                 urdf_target_object_filepath='Models/{}_target.urdf'.format(object_name))
-        target_urdf = 'Models/{}_target.urdf'.format(object_name)
-        self.target = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])
-        
-        p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)
+        object_mesh_filepath = os.path.join(self.mesh_dir, '{}'.format(object_name), '{}.obj'.format(object_name))   #物体的obj文件路径    
+        target_mesh = trimesh.load_mesh(object_mesh_filepath)    #导入物体obj信息
+        target_extents = target_mesh.bounding_box.extents.tolist()   #不知道干什么的
+        floor_offset = target_mesh.bounds.min(0)[2]   #不知道干什么的        
+        target_z = -target_mesh.bounds.min(0)[2] + self.conveyor_thickness   #物体的z坐标
+        target_initial_pose = [[0.3, 0.3, target_z], [0, 0, 0, 1]]   #初始化物体位姿坐标
+        target_urdf = 'Models/{}_target.urdf'.format(object_name)   #导入物体的urdf文件
+        self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
+        p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
 
     def reset(self, mode, reset_dict=None):
-        self.world_steps = 0
-        self.value_markers = None
-        conveyor_z_low = 0.01
-        conveyor_z_high = 0.01
+        """
+        初始化传送带的运动模式
+        """
         if mode == 'initial':
             pu.remove_all_markers()
-            # target_pose, distance = self.target_initial_pose, self.initial_distance
             target_pose = self.target_initial_pose
             conveyor_pose = [[target_pose[0][0], target_pose[0][1], self.conveyor_initial_pose[0][2]],
                              [0, 0, 0, 1]] if target_pose is not None else self.conveyor_initial_pose
@@ -113,13 +96,12 @@ class SimEnv():
 
         elif mode in ['dynamic_linear', 'dynamic_linear_vary_speed', 'dynamic_sinusoid']:
             pu.remove_all_markers()
-
             self.conveyor.clear_motion()
 
             if reset_dict is None:
                 distance, theta, length, direction = self.sample_convey_linear_motion()
                 target_quaternion = self.sample_target_angle()
-                z_start_end = np.random.uniform(conveyor_z_low, conveyor_z_high, 2)
+                z_start_end = np.random.uniform(self.conveyor.conveyor_z_low, self.conveyor.conveyor_z_high, 2)
             else:
                 distance, theta, length, direction, z_start_end = reset_dict['distance'], reset_dict['theta'], \
                                                                   reset_dict['length'], reset_dict['direction'], \
@@ -135,22 +117,25 @@ class SimEnv():
                            target_quaternion]
             self.conveyor.set_pose(conveyor_pose)
             time.sleep(0.1)
-            p.resetBasePositionAndOrientation(self.target, target_pose[0], target_pose[1])
-            
-
+            p.resetBasePositionAndOrientation(self.target_id, target_pose[0], target_pose[1])
             self.panda.reset_robot()
             pu.step(2)
-
             pu.draw_line(self.conveyor.start_pose[0], self.conveyor.target_pose[0])
-
             p.resetDebugVisualizerCamera(cameraDistance=1.3, cameraYaw=theta + 90, cameraPitch=-35,
                                          cameraTargetPosition=(0.0, 0.0, 0.0))
+            # self.viewMatrix = self.p.computeViewMatrix([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.8], 
+            #                                             [0, 0, 0],[0, 1, 0])
+            self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])/2, 
+                                                        (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])/2, 0.8], 
+                                                        [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0],
+                                                        [0, 1, 0])
             return distance, theta, length, direction, target_quaternion, np.array(z_start_end).tolist()
 
         elif mode == 'hand_over':
             raise NotImplementedError
         else:
             raise NotImplementedError
+
 
     def sample_convey_linear_motion(self, dist=None, theta=None, length=None, direction=None):
         """ theta is in degrees """

@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import pyquaternion as pyqt
 import pybullet as p
 import pybullet_data
 import time
@@ -19,7 +18,6 @@ class Conveyor:
         self.initial_pose = initial_pose
         self.urdf_path = urdf_path
         self.id = p.loadURDF(self.urdf_path, initial_pose[0], initial_pose[1])
-        print('id:',self.id)
         self.cid = p.createConstraint(parentBodyUniqueId=self.id, parentLinkIndex=-1, childBodyUniqueId=-1,
                                       childLinkIndex=-1, jointType=p.JOINT_FIXED, jointAxis=[0, 0, 0],
                                       parentFramePosition=[0, 0, 0], childFramePosition=initial_pose[0],
@@ -38,6 +36,8 @@ class Conveyor:
         self.z_start = None
         self.z_end = None
         self.circular_angles = None
+        self.conveyor_z_low = 0.01
+        self.conveyor_z_high = 0.01
 
     def set_pose(self, pose):
         pu.set_pose(self.id, pose)

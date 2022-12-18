@@ -2,7 +2,6 @@ import pybullet as p
 import pybullet_data
 import time
 import math
-import cv2
 import os
 import argparse
 import numpy as np
@@ -21,7 +20,6 @@ def get_args():
 
 def run():
     args = get_args()
-    database_path = 'D:/code/Dynamic_grasp'      # 数据库路径
     cid = p.connect(p.GUI)  # 连接服务器
     env = SimEnv(p) # 初始化虚拟环境
     global image_id
@@ -34,6 +32,7 @@ def run():
     while True:
         # 加载物体
         env.loadObjInURDF(args.object_name)
+        print(img_path)
         if not os.path.exists(img_path):
             os.mkdir(img_path)
         env.reset(mode=args.mode_name)
@@ -43,16 +42,16 @@ def run():
             env.conveyor.step()
             env.renderURDFImage(save_path=img_path)
             # 检测按键
-            keys = p.getKeyboardEvents()
-            if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED: 
-                # 渲染图像
-                env.renderURDFImage(save_path=img_path)
-            if ord('2') in keys and keys[ord('2')]&p.KEY_WAS_TRIGGERED:
-                env.conveyor.step()
-            # 按3重置环境            
-            if ord('3') in keys and keys[ord('3')]&p.KEY_WAS_TRIGGERED:
-                env.removeObjsInURDF()
-                break
+            # keys = p.getKeyboardEvents()
+            # if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED: 
+            #     # 渲染图像
+            #     env.renderURDFImage(save_path=img_path)
+            # if ord('2') in keys and keys[ord('2')]&p.KEY_WAS_TRIGGERED:
+            #     env.conveyor.step()
+            # # 按3重置环境            
+            # if ord('3') in keys and keys[ord('3')]&p.KEY_WAS_TRIGGERED:
+            #     env.removeObjsInURDF()
+            #     break
 
 if __name__ == "__main__":
     run()

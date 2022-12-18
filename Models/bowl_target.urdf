@@ -14,7 +14,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="D:\code\Dynamic_grasp\Models\bowl\bowl.obj"/>
+        <mesh filename="D:\code\Dynamic-Grasping\Models\bowl\bowl.obj"/>
       </geometry>
        <material name="white">
         <color rgba="1 1 1 1"/>
@@ -23,7 +23,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="D:\code\Dynamic_grasp\Models\bowl\bowl.obj"/>
+        <mesh filename="D:\code\Dynamic-Grasping\Models\bowl\bowl.obj"/>
       </geometry>
     </collision>
   </link>
