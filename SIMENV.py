@@ -51,7 +51,7 @@ class SimEnv():
         self.target_id = 0
 
         # 初始化panda机器人
-        self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
+        # self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
 
         # 加载相机
         self.viewMatrix = self.p.computeViewMatrix([0, 0, 0.7], [0, 0, 0], [0, 1, 0])
@@ -59,7 +59,7 @@ class SimEnv():
 
         # 加载传送带
         self.mesh_dir = os.path.abspath('Models')
-        self.conveyor_speed = 0.2
+        self.conveyor_speed = 2
         self.conveyor_urdf = os.path.abspath('Models/conveyor.urdf')
         self.conveyor_thickness = 0.02
         self.conveyor_initial_pose = [[0.3, 0.3, self.conveyor_thickness/2], [0, 0, 0, 1]]
@@ -90,7 +90,7 @@ class SimEnv():
             conveyor_pose = [[target_pose[0][0], target_pose[0][1], self.conveyor_initial_pose[0][2]],
                              [0, 0, 0, 1]] if target_pose is not None else self.conveyor_initial_pose
             self.conveyor.set_pose(conveyor_pose)
-            self.panda.reset_robot()
+            # self.panda.reset_robot()
             pu.step(2)
             return target_pose
 
@@ -118,17 +118,19 @@ class SimEnv():
             self.conveyor.set_pose(conveyor_pose)
             time.sleep(0.1)
             p.resetBasePositionAndOrientation(self.target_id, target_pose[0], target_pose[1])
-            self.panda.reset_robot()
+            # self.panda.reset_robot()
             pu.step(2)
             pu.draw_line(self.conveyor.start_pose[0], self.conveyor.target_pose[0])
             p.resetDebugVisualizerCamera(cameraDistance=1.3, cameraYaw=theta + 90, cameraPitch=-35,
                                          cameraTargetPosition=(0.0, 0.0, 0.0))
-            # self.viewMatrix = self.p.computeViewMatrix([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.8], 
-            #                                             [0, 0, 0],[0, 1, 0])
-            self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])/2, 
-                                                        (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])/2, 0.8], 
+            self.viewMatrix = self.p.computeViewMatrix([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.7], 
                                                         [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0],
                                                         [0, 1, 0])
+            # self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3, 
+            #                                             (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0.8], 
+            #                                             [(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3,
+            #                                              (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0],
+            #                                              [0, -1, 0])
             return distance, theta, length, direction, target_quaternion, np.array(z_start_end).tolist()
 
         elif mode == 'hand_over':
@@ -169,8 +171,12 @@ class SimEnv():
         if not os.path.exists(save_path):
             os.mkdir(save_path)
 
+        target_pose, target_orn = p.getBasePositionAndOrientation(self.target_id)
+        np.save(os.path.join(save_path,'pos_orn{}.npy'.format(image_id)),np.array([target_pose,target_orn]))
+        # file = open(os.path.join(save_path,'pose_orn{}'.format(image_id)),'w')
+
         # ======================== 渲染相机深度图 ========================
-        print('>> 渲染相机深度图...')
+        # print('>> 渲染相机深度图...')
         # 渲染图像
         img_camera = self.p.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_BULLET_HARDWARE_OPENGL)
         w = img_camera[0]      # width of the image, in pixels
@@ -190,7 +196,7 @@ class SimEnv():
         C = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * (farPlane - nearPlane)
         # im_depthCamera = A / (B - C * depth)  # 单位 m
         im_depthCamera = np.divide(A, (np.subtract(B, np.multiply(C, depth))))  # 单位 m
-        im_depthCamera_rev = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float) * im_depthCamera.max() - im_depthCamera # 反转深度
+        # im_depthCamera_rev = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float) * im_depthCamera.max() - im_depthCamera # 反转深度
 
         # 获取分割图像
         im_mask = np.reshape(mask, (h, w))
@@ -207,4 +213,4 @@ class SimEnv():
         cv2.imwrite(save_path + '/camera_depth{}.png'.format(image_id), tool.depth2Gray(im_depthCamera))
         # cv2.imwrite(save_path + '/camera_depth_rev{}.png'.format(image_id), tool.depth2Gray(im_depthCamera_rev))
         image_id = image_id+1
-        print('>> 渲染结束')
+        # print('>> 渲染结束')

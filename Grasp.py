@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 from SIMENV import SimEnv
 image_id = 0
-
+duration = 0.0333
 GRASP_GAP = 0.005
 GRASP_DEPTH = 0.005
 
@@ -36,14 +36,24 @@ def run():
         if not os.path.exists(img_path):
             os.mkdir(img_path)
         env.reset(mode=args.mode_name)
+        time.sleep(0.5)
+        start_time = time.time()
+        last_time = time.time()
         while True:
             p.stepSimulation()
-            time.sleep(1./2400.)
+            this_time = time.time()
+            print(this_time)
+            if this_time - last_time >= duration:
+                last_time = this_time
+                env.renderURDFImage(save_path=img_path)
+            time.sleep(1./24000.)
+            if this_time - start_time >= 10:
+                break
             env.conveyor.step()
-            env.renderURDFImage(save_path=img_path)
+            
             # 检测按键
             # keys = p.getKeyboardEvents()
-            # if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED: 
+            # if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED:
             #     # 渲染图像
             #     env.renderURDFImage(save_path=img_path)
             # if ord('2') in keys and keys[ord('2')]&p.KEY_WAS_TRIGGERED:
@@ -52,6 +62,7 @@ def run():
             # if ord('3') in keys and keys[ord('3')]&p.KEY_WAS_TRIGGERED:
             #     env.removeObjsInURDF()
             #     break
+        break
 
 if __name__ == "__main__":
     run()
