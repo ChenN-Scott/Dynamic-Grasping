@@ -36,14 +36,16 @@ def run():
         if not os.path.exists(img_path):
             os.mkdir(img_path)
         env.reset(mode=args.mode_name)
+        env.save_internel(img_path)
+        env.save_externel(img_path)
         time.sleep(0.5)
         start_time = time.time()
         last_time = time.time()
         while True:
-            p.stepSimulation()
+            
             this_time = time.time()
-            print(this_time)
             if this_time - last_time >= duration:
+                p.stepSimulation()
                 last_time = this_time
                 env.renderURDFImage(save_path=img_path)
             time.sleep(1./24000.)

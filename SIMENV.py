@@ -66,6 +66,69 @@ class SimEnv():
         self.conveyor = Conveyor(self.conveyor_initial_pose, self.conveyor_urdf)
 
 
+    def eulerAnglesToRotationMatrix(self, theta):
+        """
+        欧拉角转旋转矩阵
+        theta: [r, p, y]
+        """
+        R_x = np.array([[1,         0,                  0                   ],
+                        [0,         math.cos(theta[0]), -math.sin(theta[0]) ],
+                        [0,         math.sin(theta[0]), math.cos(theta[0])  ]
+                        ])
+                  
+        R_y = np.array([[math.cos(theta[1]),    0,      math.sin(theta[1])  ],
+                        [0,                     1,      0                   ],
+                        [-math.sin(theta[1]),   0,      math.cos(theta[1])  ]
+                        ])
+                    
+        R_z = np.array([[math.cos(theta[2]),    -math.sin(theta[2]),    0],
+                        [math.sin(theta[2]),    math.cos(theta[2]),     0],
+                        [0,                     0,                      1]
+                        ])
+                              
+        R = np.dot(R_z, np.dot( R_y, R_x ))
+        return R
+
+
+    def getTransfMat(self, offset, rotate):
+        """
+        将平移向量和旋转矩阵合并为变换矩阵
+        offset: (x, y, z)
+        rotate: 旋转矩阵
+        """
+        mat = np.array([
+            [rotate[0, 0], rotate[0, 1], rotate[0, 2], offset[0]], 
+            [rotate[1, 0], rotate[1, 1], rotate[1, 2], offset[1]], 
+            [rotate[2, 0], rotate[2, 1], rotate[2, 2], offset[2]],
+            [0, 0, 0, 1.] 
+        ])
+        return mat
+
+
+    def angle_TO_radians(self,angle):
+        """
+        角度转弧度
+        """
+        return math.pi * angle / 180
+
+
+    def save_externel(self, save_path):
+        rotMat = self.eulerAnglesToRotationMatrix([math.pi, 0, 0])
+        transMat = self.getTransfMat([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.7], rotMat)
+        np.save(os.path.join(save_path,'externel.npy'),np.array(transMat))
+        print(transMat)
+
+
+    def save_internel(self,save_path):
+        fov = 60
+        length = 0.7
+        H = length * math.tan(self.angle_TO_radians((fov/2)))
+        W = IMAGEWIDTH * H / IMAGEHEIGHT
+        A = (IMAGEHEIGHT / 2) * length / H
+        InMatrix = np.array([[A, 0, IMAGEWIDTH/2 - 0.5], [0, A, IMAGEHEIGHT/2 - 0.5], [0, 0, 1]], dtype=np.float)
+        np.save(os.path.join(save_path,'internel.npy'),np.array(InMatrix))
+        print(InMatrix)
+
     def loadObjInURDF(self, object_name):
         """
         加载单个obj物体
@@ -79,6 +142,7 @@ class SimEnv():
         target_urdf = 'Models/{}_target.urdf'.format(object_name)   #导入物体的urdf文件
         self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
         p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
+
 
     def reset(self, mode, reset_dict=None):
         """
@@ -164,6 +228,7 @@ class SimEnv():
         """
         渲染图像
         """
+
         global image_id
         if not os.path.exists(save_path):
             os.mkdir(save_path)
@@ -183,7 +248,7 @@ class SimEnv():
         h = img_camera[1]      # height of the image, in pixels
         rgba = img_camera[2]    # color data RGB
         dep = img_camera[3]    # depth data
-        mask = img_camera[4]    # mask data
+        # mask = img_camera[4]    # mask data
 
         # 获取彩色图像
         im_rgb = np.reshape(rgba, (h, w, 4))[:, :, [2, 1, 0]]
@@ -199,7 +264,7 @@ class SimEnv():
         # im_depthCamera_rev = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float) * im_depthCamera.max() - im_depthCamera # 反转深度
 
         # 获取分割图像
-        im_mask = np.reshape(mask, (h, w))
+        # im_mask = np.reshape(mask, (h, w))
 
         # 保存图像
         # print('>> 保存相机深度图')
