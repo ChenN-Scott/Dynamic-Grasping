@@ -3,37 +3,26 @@ import pybullet_data
 import time
 import math
 import os
-import glob
 import random
 import cv2
-import shutil
 import numpy as np
-import scipy.io as scio
 import pybullet_utils as pu
 import trimesh
-import misc_utils as mu
 from Conveyor import Conveyor
 import panda_sim_grasp as panda_sim
-import grasp_utils as gu
 from math import pi, cos, sin, sqrt, atan, radians, degrees
 import tool
 
 # 图像尺寸
 IMAGEWIDTH = 1280
 IMAGEHEIGHT = 960
-
 nearPlane = 0.01
 farPlane = 10
-
 fov = 60    # 垂直视场 图像高tan(30) * 0.7 *2 = 0.8082903m
 aspect = IMAGEWIDTH / IMAGEHEIGHT
 
-size=(0.8, 0.8)     # 桌面深度图实际尺寸 m
-unit=0.0002          # 每个像素的长度 0.1mm
-
-
 class SimEnv():
-    def __init__(self, bullet_client):
+    def __init__(self, bullet_client, scene_path):
         self.p = bullet_client
         self.p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
         self.p.setPhysicsEngineParameter(maxNumCmdPer1ms=1000)
@@ -54,56 +43,63 @@ class SimEnv():
         # self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
 
         # 加载相机
-        self.viewMatrix = self.p.computeViewMatrix([0, 0, 0.7], [0, 0, 0], [0, 1, 0])
+        self.pose_point = [0, 0, 0.15]
+        self.target_point = [0, 0, 0]
+        self.head_point = [0, 1, 1]
+        self.viewMatrix = self.p.computeViewMatrix(self.pose_point, self.target_point, self.head_point)
         self.projectionMatrix = self.p.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane)
+
+        # 计算相机内参
+        A = IMAGEHEIGHT / (2 * math.tan(math.pi * fov/2 / 180))
+        self.InMatrix = np.array([[A, 0, IMAGEWIDTH/2 - 0.5], [0, A, IMAGEHEIGHT/2 - 0.5], [0, 0, 1]], dtype=float)
+
+        # 计算相机外参
+        self.ExMatrix = self.getTransMat(self.pose_point, self.target_point, self.head_point)
 
         # 加载传送带
         self.mesh_dir = os.path.abspath('Models')
         self.conveyor_speed = 2
         self.conveyor_urdf = os.path.abspath('Models/conveyor.urdf')
+        print(self.conveyor_urdf)
         self.conveyor_thickness = 0.02
         self.conveyor_initial_pose = [[0.3, 0.3, self.conveyor_thickness/2], [0, 0, 0, 1]]
         self.conveyor = Conveyor(self.conveyor_initial_pose, self.conveyor_urdf)
 
 
-    def eulerAnglesToRotationMatrix(self, theta):
-        """
-        欧拉角转旋转矩阵
-        theta: [r, p, y]
-        """
-        R_x = np.array([[1,         0,                  0                   ],
-                        [0,         math.cos(theta[0]), -math.sin(theta[0]) ],
-                        [0,         math.sin(theta[0]), math.cos(theta[0])  ]
-                        ])
-                  
-        R_y = np.array([[math.cos(theta[1]),    0,      math.sin(theta[1])  ],
-                        [0,                     1,      0                   ],
-                        [-math.sin(theta[1]),   0,      math.cos(theta[1])  ]
-                        ])
-                    
-        R_z = np.array([[math.cos(theta[2]),    -math.sin(theta[2]),    0],
-                        [math.sin(theta[2]),    math.cos(theta[2]),     0],
-                        [0,                     0,                      1]
-                        ])
-                              
-        R = np.dot(R_z, np.dot( R_y, R_x ))
-        return R
 
-
-    def getTransfMat(self, offset, rotate):
+    def getTransMat(self, pose, target, head):
         """
-        将平移向量和旋转矩阵合并为变换矩阵
-        offset: (x, y, z)
-        rotate: 旋转矩阵
+        根据平移向量和相机向量计算外参矩阵
+        pose: (x1, y1, z1)
+        target: (x2, y2, z2)
+        head: (x3, y3, z3)
         """
-        mat = np.array([
-            [rotate[0, 0], rotate[0, 1], rotate[0, 2], offset[0]], 
-            [rotate[1, 0], rotate[1, 1], rotate[1, 2], offset[1]], 
-            [rotate[2, 0], rotate[2, 1], rotate[2, 2], offset[2]],
-            [0, 0, 0, 1.] 
-        ])
-        return mat
+        target = [target[i] - pose[i] for i in range(len(target))] 
+        head = [head[i] - pose[i] for i in range(len(head))]
 
+        temp1 = self.Determinant_2(head[2],head[1],target[2],target[1])
+        temp2 = self.Determinant_2(head[0],head[2],target[0],target[2])
+        temp3 = self.Determinant_2(head[1],head[0],target[1],target[0])
+
+        judge = math.sqrt(math.pow(temp1,2)+math.pow(temp2,2)+math.pow(temp3,2))
+        [a1, a2, a3] = [1/judge * i for i in [temp1, temp2, temp3]]
+
+        judge = math.sqrt(head[0]*head[0]+head[1]*head[1]+head[2]*head[2])
+        [b1, b2, b3] = [1/judge * i for i in [-head[0], -head[1], -head[2]]]
+
+        judge = math.sqrt(target[0]*target[0]+target[1]*target[1]+target[2]*target[2])
+        [c1, c2, c3] = [1/judge * i for i in [target[0], target[1], target[2]]]
+
+        return np.array(([a1,a2,a3,pose[0]],
+                         [b1,b2,b3,pose[1]],
+                         [c1,c2,c3,pose[2]],
+                         [0,0,0,1]),dtype=float)
+
+    def Determinant_2(self,a,b,c,d):
+        """
+        二阶行列式计算
+        """
+        return a*d-b*c
 
     def angle_TO_radians(self,angle):
         """
@@ -111,23 +107,17 @@ class SimEnv():
         """
         return math.pi * angle / 180
 
+    def save_Extrinsics(self, save_path):
+        """
+        保存相机外参
+        """
+        np.save(os.path.join(save_path,'Extrinsics.npy'),np.array(self.ExMatrix))
 
-    def save_externel(self, save_path):
-        rotMat = self.eulerAnglesToRotationMatrix([math.pi, 0, 0])
-        transMat = self.getTransfMat([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.7], rotMat)
-        np.save(os.path.join(save_path,'externel.npy'),np.array(transMat))
-        print(transMat)
-
-
-    def save_internel(self,save_path):
-        fov = 60
-        length = 0.7
-        H = length * math.tan(self.angle_TO_radians((fov/2)))
-        W = IMAGEWIDTH * H / IMAGEHEIGHT
-        A = (IMAGEHEIGHT / 2) * length / H
-        InMatrix = np.array([[A, 0, IMAGEWIDTH/2 - 0.5], [0, A, IMAGEHEIGHT/2 - 0.5], [0, 0, 1]], dtype=np.float)
-        np.save(os.path.join(save_path,'internel.npy'),np.array(InMatrix))
-        print(InMatrix)
+    def save_Intrinsics(self, save_path):
+        """ 
+        保存相机内参
+        """
+        np.save(os.path.join(save_path,'Intrinsics.npy'),np.array(self.InMatrix))
 
     def loadObjInURDF(self, object_name):
         """
@@ -142,7 +132,6 @@ class SimEnv():
         target_urdf = 'Models/{}_target.urdf'.format(object_name)   #导入物体的urdf文件
         self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
         p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
-
 
     def reset(self, mode, reset_dict=None):
         """
@@ -202,7 +191,6 @@ class SimEnv():
         else:
             raise NotImplementedError
 
-
     def sample_convey_linear_motion(self, dist=None, theta=None, length=None, direction=None):
         """ theta is in degrees """
         distance_low = 0.15
@@ -224,20 +212,32 @@ class SimEnv():
         orientation = p.getQuaternionFromEuler([0, 0, angle])
         return list(orientation)
 
-    def renderURDFImage(self, save_path):
+    def renderURDFImage(self, kinect_path):
         """
         渲染图像
         """
-
         global image_id
-        if not os.path.exists(save_path):
-            os.mkdir(save_path)
-        save_path = os.path.join(save_path,'{}'.format(image_id))
-        if not os.path.exists(save_path):
-            os.mkdir(save_path)
+        if not os.path.exists(kinect_path):
+            os.mkdir(kinect_path)
+
+        rgb_path = os.path.join(kinect_path,'\rgb')
+        if not os.path.exists(rgb_path):
+            os.mkdir(rgb_path)
+
+        depth_path = os.path.join(kinect_path,'\depth')
+        if not os.path.exists(depth_path):
+            os.mkdir(depth_path)
+
+        annotation_path = os.path.join(annotation_path,'\annotation')
+        if not os.path.exists(annotation_path):
+            os.mkdir(annotation_path)
+
+        meta_path = os.path.join(meta_path,'\meta')
+        if not os.path.exists(meta_path):
+            os.mkdir(meta_path)
 
         target_pose, target_orn = p.getBasePositionAndOrientation(self.target_id)
-        np.save(os.path.join(save_path,'pos_orn{}.npy'.format(image_id)),np.array([target_pose,target_orn]))
+        np.save(os.path.join(kinect_path,'pos_orn{}.npy'.format(image_id)),np.array([target_pose,target_orn]))
         # file = open(os.path.join(save_path,'pose_orn{}'.format(image_id)),'w')
 
         # ======================== 渲染相机深度图 ========================
@@ -273,9 +273,81 @@ class SimEnv():
         # scio.savemat(save_path + '/camera_depth_rev{}.mat'.format(image_id), {'A':im_depthCamera_rev})
         # scio.savemat(save_path + '/camera_mask{}.mat'.format(image_id), {'A':im_mask})
 
-        cv2.imwrite(save_path + '/camera_rgb{}.png'.format(image_id), im_rgb)
+        # cv2.imwrite(save_path + '/camera_rgb{}.png'.format(image_id), im_rgb)
         # cv2.imwrite(save_path + '/camera_mask{}.png'.format(image_id), im_mask*20)
-        cv2.imwrite(save_path + '/camera_depth{}.png'.format(image_id), tool.depth2Gray(im_depthCamera))
+        # cv2.imwrite(save_path + '/camera_depth{}.png'.format(image_id), tool.depth2Gray(im_depthCamera))
         # cv2.imwrite(save_path + '/camera_depth_rev{}.png'.format(image_id), tool.depth2Gray(im_depthCamera_rev))
         image_id = image_id+1
         # print('>> 渲染结束')
+
+    def img2camera(self, pt, dep):
+        """
+        获取像素点pt在相机坐标系中的坐标
+        pt: [x, y]
+        dep: 深度值
+
+        return: [x, y, z]
+        """
+        pt_in_img = np.array([[pt[0]], [pt[1]], [1]], dtype=np.float)
+        ret = np.matmul(np.linalg.inv(self.InMatrix), pt_in_img) * dep
+        return list(ret.reshape((3,)))
+
+    def camera2img(self, coord):
+        """
+        将相机坐标系中的点转换至图像
+        coord: [x, y, z]
+        return: [row, col]
+        """
+        z = coord[2]
+        coord = np.array(coord).reshape((3, 1))
+        rc = (np.matmul(self.InMatrix, coord) / z).reshape((3,))
+
+        return list(rc)[:-1]
+    
+    def camera2world(self, coord):
+        """
+        获取相机坐标系中的点在世界坐标系中的坐标
+        coord: [x, y, z]
+        return: [x, y, z]
+        """
+        coord.append(1.)
+        coord = np.array(coord).reshape((4, 1))
+        coord_new = np.matmul(self.ExMatrix, coord).reshape((4,))
+        return list(coord_new)[:-1]
+    
+    def world2camera(self, coord):
+        """
+        获取世界坐标系中的点在相机坐标系中的坐标
+        coord: [x, y, z]
+        return: [x, y, z]
+        """
+        coord.append(1.)
+        coord = np.array(coord).reshape((4, 1))
+        coord_new = np.matmul(np.linalg.inv(self.ExMatrix), coord).reshape((4,))
+        return list(coord_new)[:-1]
+    
+    def world2img(self, coord):
+        """
+        获取世界坐标系中的点在图像中的坐标
+        coord: [x, y, z]
+        return: [row, col]
+        """
+        # 转到相机坐标系
+        coord = self.world2camera(coord)
+        # 转到图像
+        pt = self.camera2img(coord) # [y, x]
+        return [int(pt[1]), int(pt[0])]
+
+    def img2world(self, pt, dep):
+        """
+        获取像素点的世界坐标
+        pt: [x, y]
+        dep: 深度值 m
+        """
+        coordInCamera = self.img2camera(pt, dep)
+        return self.camera2world(coordInCamera)
+
+if __name__ == "__main__":
+    cid = p.connect(p.GUI)
+    env = SimEnv(p)
+    print(env.world2camera([0,1,2]))

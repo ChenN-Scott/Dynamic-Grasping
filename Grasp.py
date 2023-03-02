@@ -6,7 +6,8 @@ import os
 import argparse
 import numpy as np
 from SIMENV import SimEnv
-image_id = 0
+
+scene_id = 0
 duration = 0.0333
 GRASP_GAP = 0.005
 GRASP_DEPTH = 0.005
@@ -21,23 +22,28 @@ def get_args():
 def run():
     args = get_args()
     cid = p.connect(p.GUI)  # 连接服务器
-    env = SimEnv(p) # 初始化虚拟环境
-    global image_id
+
+    scene_path = 'scenes' + '\scene_%04d'%scene_id
+    env = SimEnv(p, scene_path) # 初始化虚拟环境
+    global scene_id
 
     GRASP_STATE = False
     grasp_config = {'x':0, 'y':0, 'z':0.05, 'angle':0, 'width':0.08}
     # x y z width的单位是m, angle的单位是弧度
-    img_path = 'Images\{}'.format(args.object_name)
 
     while True:
         # 加载物体
         env.loadObjInURDF(args.object_name)
-        print(img_path)
-        if not os.path.exists(img_path):
-            os.mkdir(img_path)
+        if not os.path.exists(scene_path):
+            os.mkdir(scene_path)
+        
+        # 保存相机内参和外参
         env.reset(mode=args.mode_name)
-        env.save_internel(img_path)
-        env.save_externel(img_path)
+        env.save_Intrinsics(scene_path)
+        env.save_Extrinsics(scene_path)
+
+        kinect_path = os.path.join(scene_path,'\kinect')
+
         time.sleep(0.5)
         start_time = time.time()
         last_time = time.time()
@@ -47,7 +53,7 @@ def run():
             if this_time - last_time >= duration:
                 p.stepSimulation()
                 last_time = this_time
-                env.renderURDFImage(save_path=img_path)
+                env.renderURDFImage(save_path=kinect_path)
             time.sleep(1./24000.)
             if this_time - start_time >= 10:
                 break
