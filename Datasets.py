@@ -30,33 +30,33 @@ class Datasets():
         self.pos_in_world = ET.Element("pos_in_world")
         self.ori_in_world = ET.Element("ori_in_world")
 
-        self.kinect_path = os.path.join(scene_path,'\kinect')
+        self.kinect_path = os.path.join(scene_path,'kinect')
         if not os.path.exists(self.kinect_path):
             os.mkdir(self.kinect_path)
 
-        self.rgb_path = os.path.join(self.kinect_path,'\rgb')
+        self.rgb_path = os.path.join(self.kinect_path,'rgb')
         if not os.path.exists(self.rgb_path):
             os.mkdir(self.rgb_path)
 
-        self.depth_path = os.path.join(self.kinect_path,'\depth')
+        self.depth_path = os.path.join(self.kinect_path,'depth')
         if not os.path.exists(self.depth_path):
             os.mkdir(self.depth_path)
 
-        self.annotation_path = os.path.join(self.kinect_path,'\annotation')
-        if not os.path.exists(self.depth_path):
-            os.mkdir(self.depth_path)
+        self.annotation_path = os.path.join(self.kinect_path,'annotation')
+        if not os.path.exists(self.annotation_path):
+            os.mkdir(self.annotation_path)
 
     def create_obj_id_list(self, object_name):
         np.savetxt('./obj_id_list', obj_dict[object_name], fmt="%d", delimiter="\n")
 
     def save_rgb(self, im_rgb, id):
-        cv2.imwrite(self.rgb_path + '/%04d{}.png'.format(id), im_rgb)
+        cv2.imwrite(self.rgb_path + '/%04d'%id+'.png', im_rgb)
 
     def save_depth(self, im_depth, id):
-        cv2.imwrite(self.depth_path + '/%04d{}.png'.format(id), tool.depth2Gray(im_depth))
+        cv2.imwrite(self.depth_path + '/%04d'%id+'.png', tool.depth2Gray(im_depth))
 
     def save_annotation(self, id, object_name, pos, ori):
-        self.obj_id.text = obj_dict[object_name]
+        self.obj_id.text = '{}'.format(obj_dict[object_name])
         self.obj_name.text = '{}.ply'.format(object_name)
         self.obj_path.text = 'Models/{}.ply'.format(object_name)
         self.pos_in_world.text = '{} {} {}'.format(pos[0],pos[1],pos[2])
@@ -68,7 +68,19 @@ class Datasets():
         self.obj.append(self.ori_in_world)
         self.root.append(self.obj)
         self.indent(self.root)
-        self.tree.write("%04d{}.xml".format(id), encoding='utf-8', xml_declaration=True)
+        self.tree.write(self.annotation_path + '/%04d'%id + '.xml', encoding='utf-8', xml_declaration=True)
+
+    def save_Extrinsics(self, ExMatrix):
+        """
+        保存相机外参
+        """
+        np.save(os.path.join(self.kinect_path,'Extrinsics.npy'),np.array(ExMatrix))
+
+    def save_Intrinsics(self, InMatrix):
+        """ 
+        保存相机内参
+        """
+        np.save(os.path.join(self.kinect_path,'Intrinsics.npy'),np.array(InMatrix))
 
     def save_pos_ori(self, target_pose, target_orn):
         pass
@@ -87,4 +99,7 @@ class Datasets():
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
-    
+
+if __name__ == "__main__":
+    data = Datasets('scenes\scene_0000')
+    data.save_annotation(4,'mug',[6,7,8],[0,0,0,1])

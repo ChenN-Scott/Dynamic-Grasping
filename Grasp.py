@@ -6,8 +6,8 @@ import os
 import argparse
 import numpy as np
 from SIMENV import SimEnv
+from Datasets import Datasets
 
-scene_id = 0
 duration = 0.0333
 GRASP_GAP = 0.005
 GRASP_DEPTH = 0.005
@@ -16,17 +16,18 @@ def get_args():
     parser = argparse.ArgumentParser(description='Run Dynamic Grasping Experiment')
     parser.add_argument('--object_name', type=str, default='bleach_cleanser')           #要抓取的物体名称\
     parser.add_argument('--mode_name', type=str, default='dynamic_linear')
+    parser.add_argument('--scene_id', type=int, default=0)
     args = parser.parse_args()
     return args
 
 def run():
     args = get_args()
     cid = p.connect(p.GUI)  # 连接服务器
-
-    scene_path = 'scenes' + '\scene_%04d'%scene_id
+    
+    scene_path = 'scenes' + '\scene_%04d'%args.scene_id
+    if not os.path.exists(scene_path):
+        os.mkdir(scene_path)
     env = SimEnv(p, scene_path) # 初始化虚拟环境
-    global scene_id
-
     GRASP_STATE = False
     grasp_config = {'x':0, 'y':0, 'z':0.05, 'angle':0, 'width':0.08}
     # x y z width的单位是m, angle的单位是弧度
@@ -42,7 +43,7 @@ def run():
         env.save_Intrinsics(scene_path)
         env.save_Extrinsics(scene_path)
 
-        kinect_path = os.path.join(scene_path,'\kinect')
+        kinect_path = os.path.join(scene_path,'kinect')
 
         time.sleep(0.5)
         start_time = time.time()

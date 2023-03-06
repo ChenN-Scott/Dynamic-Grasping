@@ -9,6 +9,7 @@ import numpy as np
 import pybullet_utils as pu
 import trimesh
 from Conveyor import Conveyor
+from Datasets import Datasets
 import panda_sim_grasp as panda_sim
 from math import pi, cos, sin, sqrt, atan, radians, degrees
 import tool
@@ -41,6 +42,8 @@ class SimEnv():
 
         # 初始化panda机器人
         # self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
+        self.scene_path = scene_path
+        self.datasets = Datasets(self.scene_path)
 
         # 加载相机
         self.pose_point = [0, 0, 0.15]
@@ -349,5 +352,11 @@ class SimEnv():
 
 if __name__ == "__main__":
     cid = p.connect(p.GUI)
-    env = SimEnv(p)
+    a = np.load('cam0_wrt_table.npy')
+    b = np.load('camK.npy')
+    c = np.load('camera_poses.npy')
+    print(a.shape)
+    print(b.shape)
+    print(c.shape)
+    env = SimEnv(p,'scenes\scene_0000')
     print(env.world2camera([0,1,2]))
