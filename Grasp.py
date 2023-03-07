@@ -31,13 +31,6 @@ def run():
         os.mkdir(scene_path)
     env = SimEnv(p, scene_path) 
 
-    # 加载相机
-    kinect_path = os.path.join(scene_path,'kinect')
-    pose_point = [0, 0, 0.15]
-    target_point = [0, 0, 0]
-    head_point = [0, 1, 1]
-    camera = Camera(p, kinect_path, pose_point, target_point, head_point)
-
     timeStep=1./1000.
     p.setTimeStep(timeStep)
     GRASP_STATE = False
@@ -48,7 +41,15 @@ def run():
     target_id = env.loadObjInURDF(args.object_name)
     if not os.path.exists(scene_path):
         os.mkdir(scene_path)
-    env.reset(mode=args.mode_name)
+    pos = env.reset(mode=args.mode_name)
+
+
+    # 加载相机
+    kinect_path = os.path.join(scene_path,'kinect')
+    pose_point = pos[0]
+    target_point = pos[1]
+    head_point = pos[2]
+    camera = Camera(p, kinect_path, pose_point, target_point, head_point)
 
     # 保存相机内参和外参
     camera.save_Intrinsics()
@@ -69,7 +70,7 @@ def run():
         if this_time - start_time >= 10:
             break
         env.conveyor.step()
-        
+        pass
         # 检测按键
         # keys = p.getKeyboardEvents()
         # if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED:

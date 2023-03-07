@@ -103,9 +103,7 @@ class SimEnv():
             pu.draw_line(self.conveyor.start_pose[0], self.conveyor.target_pose[0])
             # p.resetDebugVisualizerCamera(cameraDistance=1.3, cameraYaw=theta + 90, cameraPitch=-35,
             #                              cameraTargetPosition=(0.0, 0.0, 0.0))
-            self.camera.reset([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.7], 
-                                [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0],
-                                [0, 1, 0])
+            return [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.7], [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0], [0, 1, 0]
             # self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3, 
             #                                             (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0.8], 
             #                                             [(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3,
