@@ -173,8 +173,8 @@ class Camera:
         """
         np.save(os.path.join(self.kinect_path,'Intrinsics.npy'),np.array(self.InMatrix))
 
-    def render_Image(self, target_id):
-        img = p.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+    def render_Image(self, py, target_id):
+        img = py.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_BULLET_HARDWARE_OPENGL)
         target_pose, target_orn = p.getBasePositionAndOrientation(target_id)
         self.img_list.append(img)
         self.pos_list.append([target_pose, target_orn])

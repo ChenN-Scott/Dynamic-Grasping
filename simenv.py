@@ -45,6 +45,9 @@ class SimEnv():
         self.conveyor_initial_pose = [[0.3, 0.3, self.conveyor_thickness/2], [0, 0, 0, 1]]
         self.conveyor = Conveyor(self.conveyor_initial_pose, self.conveyor_urdf) 
 
+    def get_p(self):
+        return self.p
+
     def loadObjInURDF(self, object_name):
         """
         加载单个obj物体
@@ -56,6 +59,7 @@ class SimEnv():
         target_z = -target_mesh.bounds.min(0)[2] + self.conveyor_thickness   #物体的z坐标
         target_initial_pose = [[0.3, 0.3, target_z], [0, 0, 0, 1]]   #初始化物体位姿坐标
         target_urdf = 'Models/{}_target.urdf'.format(object_name)   #导入物体的urdf文件
+        print(target_urdf)
         self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
         p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
         return self.target_id
