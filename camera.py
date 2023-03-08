@@ -201,7 +201,9 @@ class Camera:
             # 保存图像
             self.datasets.save_rgb(id, im_rgb)
             self.datasets.save_depth(id, im_depthCamera)
+            id = id+1
 
         id = 0
         for pos in self.pos_list:
             self.datasets.save_annotation(id, object_name, pos[0], pos[1])
+            id = id+1

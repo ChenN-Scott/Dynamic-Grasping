@@ -4,12 +4,7 @@
 		<obj_id>6</obj_id>
 		<obj_name>mug.ply</obj_name>
 		<obj_path>Models/mug.ply</obj_path>
-<<<<<<< HEAD
-		<pos_in_world>6 7 8</pos_in_world>
-		<ori_in_world>0 0 0 1</ori_in_world>
-=======
-		<pos_in_world>-0.2519575258322515 -0.4601819007765899 0.059952227419454523</pos_in_world>
-		<ori_in_world>0.001494441807286288 -0.0031933262538482326 0.25703574277996705 0.9663954657616476</ori_in_world>
->>>>>>> 3870a140ab17b02430b6bbaf10cfb236dd9700f7
+		<pos_in_world>0.43903239338308864 0.3223979067486124 0.06003733051843134</pos_in_world>
+		<ori_in_world>0.00518836092009541 -9.630932586042488e-05 0.9990519005876154 0.0432246638824408</ori_in_world>
 	</obj>
 </scene>

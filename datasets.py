@@ -20,8 +20,8 @@ obj_dict = {'bleach_cleanser':1,
             'tomato_soup_can':13}
 
 class Datasets():
-    def __init__(self, scene_path):
-        self.kinect_path = os.path.join(scene_path,'kinect')
+    def __init__(self, kinect_path):
+        self.kinect_path = kinect_path
         if not os.path.exists(self.kinect_path):
             os.mkdir(self.kinect_path)
 

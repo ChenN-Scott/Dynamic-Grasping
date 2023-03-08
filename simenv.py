@@ -33,7 +33,7 @@ class SimEnv():
         # 初始化panda机器人
         # self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
         self.scene_path = scene_path
-        self.datasets = Datasets(self.scene_path)
+
 
         self.img_list = []
 
@@ -59,7 +59,6 @@ class SimEnv():
         target_z = -target_mesh.bounds.min(0)[2] + self.conveyor_thickness   #物体的z坐标
         target_initial_pose = [[0.3, 0.3, target_z], [0, 0, 0, 1]]   #初始化物体位姿坐标
         target_urdf = 'Models/{}_target.urdf'.format(object_name)   #导入物体的urdf文件
-        print(target_urdf)
         self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
         p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
         return self.target_id
@@ -107,7 +106,7 @@ class SimEnv():
             pu.draw_line(self.conveyor.start_pose[0], self.conveyor.target_pose[0])
             # p.resetDebugVisualizerCamera(cameraDistance=1.3, cameraYaw=theta + 90, cameraPitch=-35,
             #                              cameraTargetPosition=(0.0, 0.0, 0.0))
-            return [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.7], [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0], [0, 1, 0]
+            return [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.3], [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0], [0, 1, 0]
             # self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3, 
             #                                             (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0.8], 
             #                                             [(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3,

@@ -8,17 +8,13 @@
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
        <!-- mass controls penetration -->
-<<<<<<< HEAD
-       <mass value=".01"/>
-=======
        <mass value="5.01"/>
->>>>>>> 3870a140ab17b02430b6bbaf10cfb236dd9700f7
        <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="1e-4"/>
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="D:\code\Dynamic-Grasping\Models\mug\mug.obj"/>
+        <mesh filename="D:\code\Dynamic_Grasping\Models\mug\mug.obj"/>
       </geometry>
        <material name="white">
         <color rgba="1 1 1 1"/>
@@ -27,7 +23,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="D:\code\Dynamic-Grasping\Models\mug\mug.obj"/>
+        <mesh filename="D:\code\Dynamic_Grasping\Models\mug\mug.obj"/>
       </geometry>
     </collision>
   </link>

@@ -8,6 +8,7 @@ import numpy as np
 from simenv import SimEnv
 from camera import Camera
 from datasets import Datasets
+import threading
 
 duration = 0.0333
 GRASP_GAP = 0.005
@@ -20,6 +21,20 @@ def get_args():
     parser.add_argument('--scene_id', type=int, default=0)
     args = parser.parse_args()
     return args
+
+class MyThread(threading.Thread):
+    def __init__(self, env):
+        super(MyThread, self).__init__()  # 重构run函数必须要写
+        self.env = env
+ 
+    def run(self):
+        last_time = time.time()
+        while True:
+            this_time = time.time()
+            time.sleep(1./12000.)
+            self.env.conveyor.step()
+            if this_time - last_time > 10:
+                break
 
 def run():
     args = get_args()
@@ -39,17 +54,15 @@ def run():
 
     # 加载物体
     target_id = env.loadObjInURDF(args.object_name)
-    if not os.path.exists(scene_path):
-        os.mkdir(scene_path)
     pos = env.reset(mode=args.mode_name)
-
+    py = env.get_p()
 
     # 加载相机
     kinect_path = os.path.join(scene_path,'kinect')
     pose_point = pos[0]
     target_point = pos[1]
     head_point = pos[2]
-    camera = Camera(p, kinect_path, pose_point, target_point, head_point)
+    camera = Camera(py, kinect_path, pose_point, target_point, head_point)
 
     # 保存相机内参和外参
     camera.save_Intrinsics()
@@ -60,28 +73,32 @@ def run():
     start_time = time.time()
     last_time = time.time()
     p.setRealTimeSimulation(1)
+    thread = MyThread(env)
+    thread.start()
     while True:
-        this_time = time.time()
-        print('{:8f}'.format(this_time - last_time))
-        if this_time - last_time >= duration:
-            last_time = this_time
-            camera.render_Image(env.get_p(), target_id)
-        time.sleep(1./24000.)
-        if this_time - start_time >= 10:
-            break
-        env.conveyor.step()
         pass
-        # 检测按键
-        # keys = p.getKeyboardEvents()
-        # if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED:
-        #     # 渲染图像
-        #     env.renderURDFImage(save_path=img_path)
-        # if ord('2') in keys and keys[ord('2')]&p.KEY_WAS_TRIGGERED:
-        #     env.conveyor.step()
-        # # 按3重置环境            
-        # if ord('3') in keys and keys[ord('3')]&p.KEY_WAS_TRIGGERED:
-        #     env.removeObjsInURDF()
+        # this_time = time.time()
+        # print('{:8f}'.format(this_time - last_time))
+        # if this_time - last_time >= duration:
+        #     last_time = this_time
+        #     camera.render_Image(py, target_id)
+        # time.sleep(1./24000.)
+        # if this_time - start_time >= 10:
         #     break
+        
+        # pass
+        # # 检测按键
+        # # keys = p.getKeyboardEvents()
+        # # if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED:
+        # #     # 渲染图像
+        # #     env.renderURDFImage(save_path=img_path)
+        # # if ord('2') in keys and keys[ord('2')]&p.KEY_WAS_TRIGGERED:
+        # #     env.conveyor.step()
+        # # # 按3重置环境            
+        # # if ord('3') in keys and keys[ord('3')]&p.KEY_WAS_TRIGGERED:
+        # #     env.removeObjsInURDF()
+        # #     break
+    # camera.save_Image(args.object_name)
 
 if __name__ == "__main__":
     run()
