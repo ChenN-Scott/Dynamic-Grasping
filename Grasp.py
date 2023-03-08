@@ -28,12 +28,13 @@ class MyThread(threading.Thread):
         self.env = env
  
     def run(self):
-        last_time = time.time()
+        start_time = time.time()
         while True:
-            this_time = time.time()
+            last_time = time.time()
             time.sleep(1./12000.)
             self.env.conveyor.step()
-            if this_time - last_time > 10:
+            this_time = time.time()
+            if this_time - start_time > 5:
                 break
 
 def run():
@@ -75,16 +76,18 @@ def run():
     p.setRealTimeSimulation(1)
     thread = MyThread(env)
     thread.start()
+
+    # 开始拍照
+    start_time = time.time()
+    last_time = time.time()
     while True:
-        pass
-        # this_time = time.time()
-        # print('{:8f}'.format(this_time - last_time))
-        # if this_time - last_time >= duration:
-        #     last_time = this_time
-        #     camera.render_Image(py, target_id)
-        # time.sleep(1./24000.)
-        # if this_time - start_time >= 10:
-        #     break
+        this_time = time.time()
+        if this_time - last_time >= duration:
+            print('{:8f}'.format(this_time - last_time))
+            last_time = this_time
+            camera.render_Image(py, target_id)
+        if this_time - start_time >= 5:
+            break
         
         # pass
         # # 检测按键
@@ -98,7 +101,7 @@ def run():
         # # if ord('3') in keys and keys[ord('3')]&p.KEY_WAS_TRIGGERED:
         # #     env.removeObjsInURDF()
         # #     break
-    # camera.save_Image(args.object_name)
+    camera.save_Image(args.object_name)
 
 if __name__ == "__main__":
     run()
