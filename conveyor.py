@@ -119,7 +119,7 @@ class Conveyor:
                 wps = np.linspace(segments[i], segments[i+1], num_steps)
                 position_trajectory.extend(wps)
         else:
-            num_steps = int(self.length / self.speed * 960)
+            num_steps = int(self.length / self.speed * 240)
             position_trajectory = np.linspace(start_position, target_position, num_steps)
         self.discretized_trajectory = [[list(pos), orientation] for pos in position_trajectory]
         self.wp_target_index = 1

@@ -34,7 +34,7 @@ class MyThread(threading.Thread):
             time.sleep(1./12000.)
             self.env.conveyor.step()
             this_time = time.time()
-            if this_time - start_time > 5:
+            if this_time - start_time > 7:
                 break
 
 def run():
@@ -55,14 +55,14 @@ def run():
 
     # 加载物体
     target_id = env.loadObjInURDF(args.object_name)
-    pos = env.reset(mode=args.mode_name)
+    cam_pos = env.reset(mode=args.mode_name)
     py = env.get_p()
 
     # 加载相机
     kinect_path = os.path.join(scene_path,'kinect')
-    pose_point = pos[0]
-    target_point = pos[1]
-    head_point = pos[2]
+    pose_point = cam_pos[0]
+    target_point = cam_pos[1]
+    head_point = cam_pos[2]
     camera = Camera(py, kinect_path, pose_point, target_point, head_point)
 
     # 保存相机内参和外参
@@ -83,7 +83,7 @@ def run():
     while True:
         this_time = time.time()
         if this_time - last_time >= duration:
-            print('{:8f}'.format(this_time - last_time))
+            print('{:8f}'.format(this_time - last_time)) 
             last_time = this_time
             camera.render_Image(py, target_id)
         if this_time - start_time >= 5:
