@@ -247,7 +247,7 @@ class Conveyor:
 
     def predict(self, duration):
         # predict the ground truth future pose of the conveyor
-        num_predicted_steps = int(duration * 240)
+        num_predicted_steps = int(duration * 960)
         predicted_step_index = self.wp_target_index - 1 + num_predicted_steps
         if predicted_step_index < len(self.discretized_trajectory):
             return self.discretized_trajectory[predicted_step_index]

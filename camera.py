@@ -54,7 +54,6 @@ class Camera:
 
     def Cal_OutMatrix(self, pose, point, head):
         point = [point[i] - pose[i] for i in range(len(point))]
-        head = [head[i] - pose[i] for i in range(len(head))]
         temp1 = self.Determinant_2(head[2],head[1],point[2],point[1])
         temp2 = self.Determinant_2(head[0],head[2],point[0],point[2])
         temp3 = self.Determinant_2(head[1],head[0],point[1],point[0])

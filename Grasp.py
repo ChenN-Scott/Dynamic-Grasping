@@ -26,7 +26,7 @@ class MyThread(threading.Thread):
     def __init__(self, env):
         super(MyThread, self).__init__()  # 重构run函数必须要写
         self.env = env
- 
+
     def run(self):
         start_time = time.time()
         while True:
@@ -34,7 +34,7 @@ class MyThread(threading.Thread):
             time.sleep(1./12000.)
             self.env.conveyor.step()
             this_time = time.time()
-            if this_time - start_time > 7:
+            if this_time - start_time > 30:
                 break
 
 def run():
@@ -47,7 +47,7 @@ def run():
         os.mkdir(scene_path)
     env = SimEnv(p, scene_path) 
 
-    timeStep=1./1000.
+    timeStep=1./240.
     p.setTimeStep(timeStep)
     GRASP_STATE = False
     grasp_config = {'x':0, 'y':0, 'z':0.05, 'angle':0, 'width':0.08}
@@ -86,7 +86,7 @@ def run():
             print('{:8f}'.format(this_time - last_time)) 
             last_time = this_time
             camera.render_Image(py, target_id)
-        if this_time - start_time >= 5:
+        if this_time - start_time >= 30:
             break
         
         # pass
@@ -105,3 +105,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+    #python Grasp.py --object_name mug --scene_id 1

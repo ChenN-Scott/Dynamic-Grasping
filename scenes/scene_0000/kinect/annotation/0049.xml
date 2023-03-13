@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scene>
 	<obj>
-		<obj_id>6</obj_id>
-		<obj_name>mug.ply</obj_name>
-		<obj_path>Models/mug.ply</obj_path>
-		<pos_in_world>0.39846366883857587 0.2779940354464342 0.05991750651807035</pos_in_world>
-		<ori_in_world>0.002648652602289812 0.0005138730952797575 0.9678510217925678 -0.2515096820977613</ori_in_world>
+		<obj_id>2</obj_id>
+		<obj_name>bowl.ply</obj_name>
+		<obj_path>Models/bowl.ply</obj_path>
+		<pos_in_world>0.4572558529820302 -0.07472239158432314 0.0455066253898641</pos_in_world>
+		<ori_in_world>-0.0008734437877830521 -0.0008987292757280595 -0.3519969544125207 0.9360003063385974</ori_in_world>
 	</obj>
 </scene>

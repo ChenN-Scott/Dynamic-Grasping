@@ -39,7 +39,7 @@ class SimEnv():
 
         # 加载传送带
         self.mesh_dir = os.path.abspath('Models')
-        self.conveyor_speed = 1
+        self.conveyor_speed = 0.5
         self.conveyor_urdf = os.path.abspath('Models/conveyor.urdf')
         self.conveyor_thickness = 0.02
         self.conveyor_initial_pose = [[0.3, 0.3, self.conveyor_thickness/2], [0, 0, 0, 1]]
@@ -109,7 +109,7 @@ class SimEnv():
             # return ([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.3], [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0], [0, 1, 0])
             return ([self.conveyor.target_pose[0][0], self.conveyor.target_pose[0][1], 0.5], 
                     [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2, (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2, 0],
-                    []
+                    [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2-self.conveyor.start_pose[0][0], (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2-self.conveyor.start_pose[0][1], 1]
             )
             # self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3, 
             #                                             (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0.8], 

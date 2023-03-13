@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scene>
+	<obj>
+		<obj_id>2</obj_id>
+		<obj_name>bowl.ply</obj_name>
+		<obj_path>Models/bowl.ply</obj_path>
+		<pos_in_world>0.05928589552978197 -0.2358069530211348 0.04550785700876061</pos_in_world>
+		<ori_in_world>-0.0008720748739243764 -0.0008590541850484461 -0.34869563769996426 0.937235217947094</ori_in_world>
+	</obj>
+</scene>
