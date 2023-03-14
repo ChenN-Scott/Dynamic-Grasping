@@ -1,0 +1,13 @@
+python Grasp.py --object_name bleach_cleanser --scene_id 0
+python Grasp.py --object_name bowl --scene_id 1
+python Grasp.py --object_name cracker_box --scene_id 2
+python Grasp.py --object_name cube --scene_id 3
+python Grasp.py --object_name master_chef_can --scene_id 4
+python Grasp.py --object_name mug --scene_id 5
+python Grasp.py --object_name mustard_bottle --scene_id 6
+python Grasp.py --object_name potted_meat_can --scene_id 7
+python Grasp.py --object_name power_drill --scene_id 8
+python Grasp.py --object_name power_drill_bkup --scene_id 9
+python Grasp.py --object_name pudding_box --scene_id 10
+python Grasp.py --object_name sugar_box --scene_id 11
+python Grasp.py --object_name tomato_soup_can --scene_id 11

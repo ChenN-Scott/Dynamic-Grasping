@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scene>
 	<obj>
-		<obj_id>2</obj_id>
-		<obj_name>bowl.ply</obj_name>
-		<obj_path>Models/bowl.ply</obj_path>
-		<pos_in_world>0.46115010030092696 -0.0731133539009674 0.04551049050560155</pos_in_world>
-		<ori_in_world>-0.0008351794057936588 -0.0008757882548819727 -0.35203607544185506 0.9359856500277071</ori_in_world>
+		<obj_id>1</obj_id>
+		<obj_name>bleach_cleanser.ply</obj_name>
+		<obj_path>Models/bleach_cleanser.ply</obj_path>
+		<pos_in_world>-0.295314916049423 -0.3124670790159344 0.13318638769495986</pos_in_world>
+		<ori_in_world>0.0016690806083870806 0.0021239303562238616 0.31792276508409306 0.9481127667799064</ori_in_world>
 	</obj>
 </scene>
