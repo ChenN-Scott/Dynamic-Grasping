@@ -44,7 +44,7 @@ class Datasets():
         cv2.imwrite(self.rgb_path + '/%04d'%id+'.png', im_rgb)
 
     def save_depth(self, id, im_depth):
-        cv2.imwrite(self.depth_path + '/%04d'%id+'.png', tool.depth2Gray(im_depth))
+        cv2.imwrite(self.depth_path + '/%04d'%id+'.png', im_depth)
 
     def save_annotation(self, id, object_name, pos, ori):
         root = ET.Element('scene')

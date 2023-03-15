@@ -6,6 +6,7 @@ import numpy as np
 import scipy.io as scio
 import os
 from datasets import Datasets
+from simenv import SimEnv
 
 # 图像尺寸
 IMAGEWIDTH = 1280
@@ -54,9 +55,9 @@ class Camera:
 
     def Cal_OutMatrix(self, pose, point, head):
         point = [point[i] - pose[i] for i in range(len(point))]
-        temp1 = self.Determinant_2(head[2],head[1],point[2],point[1])
-        temp2 = self.Determinant_2(head[0],head[2],point[0],point[2])
-        temp3 = self.Determinant_2(head[1],head[0],point[1],point[0])
+        temp1 = -self.Determinant_2(head[2],head[1],point[2],point[1])
+        temp2 = -self.Determinant_2(head[0],head[2],point[0],point[2])
+        temp3 = -self.Determinant_2(head[1],head[0],point[1],point[0])
 
         judge = math.sqrt(math.pow(temp1,2)+math.pow(temp2,2)+math.pow(temp3,2))
         [a1, a2, a3] = [1/judge * i for i in [temp1, temp2, temp3]]
@@ -65,7 +66,7 @@ class Camera:
         [b1, b2, b3] = [1/judge * i for i in [-head[0], -head[1], -head[2]]]
 
         judge = math.sqrt(point[0]*point[0]+point[1]*point[1]+point[2]*point[2])
-        [c1, c2, c3] = [1/judge * i for i in [point[0], point[1], point[2]]]
+        [c1, c2, c3] = [1/judge * i for i in [-point[0], -point[1], -point[2]]]
         return np.array(([a1,a2,a3,pose[0]],[b1,b2,b3,pose[1]],[c1,c2,c3,pose[2]],[0,0,0,1]),dtype=float)
 
     def Determinant_2(self,a,b,c,d):
@@ -127,7 +128,7 @@ class Camera:
         """
         coord.append(1.)
         coord = np.array(coord).reshape((4, 1))
-        coord_new = np.matmul(np.linalg.inv(self.transMat), coord).reshape((4,))
+        coord_new = np.matmul(np.linalg.inv(self.ExMatrix), coord).reshape((4,))
         return list(coord_new)[:-1]
 
     def world2img(self, coord):
@@ -185,7 +186,7 @@ class Camera:
             h = img[1]      # height of the image, in pixels
             rgba = img[2]    # color data RGB
             dep = img[3]    # depth data
-
+            
             # 获取彩色图像
             im_rgb = np.reshape(rgba, (h, w, 4))[:, :, [2, 1, 0]]
             im_rgb = im_rgb.astype(np.uint8)
@@ -195,14 +196,17 @@ class Camera:
             A = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * farPlane * nearPlane
             B = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * farPlane
             C = np.ones((IMAGEHEIGHT, IMAGEWIDTH), dtype=np.float64) * (farPlane - nearPlane)
-            im_depthCamera = np.divide(A, (np.subtract(B, np.multiply(C, depth))))  # 单位 m
-
+            im_depthCamera = np.divide(A, (np.subtract(B, np.multiply(C, depth)))) * 1000  # 单位 mm
             # 保存图像
             self.datasets.save_rgb(id, im_rgb)
+            im_depthCamera = im_depthCamera.astype(np.uint16)
             self.datasets.save_depth(id, im_depthCamera)
             id = id+1
 
-        id = 0
-        for pos in self.pos_list:
-            self.datasets.save_annotation(id, object_name, pos[0], pos[1])
-            id = id+1
+# for test
+if __name__ == "__main__":
+    c = Camera(p,'scenes\scene_0000',[0,0,1],[0,1,0],[0,1,1]);
+    print(c.world2camera([0,1,2]))
+    # supposed to be [0.0, -1.4142135623730951, 0.0]
+
+

@@ -34,7 +34,7 @@ class MyThread(threading.Thread):
             time.sleep(1./12000.)
             self.env.conveyor.step()
             this_time = time.time()
-            if this_time - start_time > 30:
+            if this_time - start_time > 15:
                 break
 
 def run():
@@ -86,7 +86,7 @@ def run():
             print('{:8f}'.format(this_time - last_time)) 
             last_time = this_time
             camera.render_Image(py, target_id)
-        if this_time - start_time >= 30:
+        if this_time - start_time >= 15:
             break
         
         # pass
