@@ -57,7 +57,7 @@ class Datasets():
         ori_in_world = ET.Element("ori_in_world")
         obj_id.text = '{}'.format(obj_dict[object_name])
         obj_name.text = '{}.ply'.format(object_name)
-        obj_path.text = 'Models/{}.ply'.format(object_name)
+        obj_path.text = 'Models/{}/{}.ply'.format(object_name, object_name)
         pos_in_world.text = '{} {} {}'.format(pos[0],pos[1],pos[2])
         ori_in_world.text = '{} {} {} {}'.format(ori[0], ori[1], ori[2], ori[3])
         obj.append(obj_id)

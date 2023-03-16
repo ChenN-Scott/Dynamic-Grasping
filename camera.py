@@ -202,11 +202,20 @@ class Camera:
             im_depthCamera = im_depthCamera.astype(np.uint16)
             self.datasets.save_depth(id, im_depthCamera)
             id = id+1
+        id = 0
+        for pos in self.pos_list:
+            self.datasets.save_annotation(id, object_name, pos[0], pos[1])
+            id = id+1
+
 
 # for test
 if __name__ == "__main__":
     c = Camera(p,'scenes\scene_0000',[0,0,1],[0,1,0],[0,1,1]);
     print(c.world2camera([0,1,2]))
-    # supposed to be [0.0, -1.4142135623730951, 0.0]
+    # supposed to be [0.0, -1.414, 0.0]
+
+    c = Camera(p,'scenes\scene_0000',[0,0,3],[0,4,0],[0,3,4]);
+    print(c.world2camera([0,3,7]))
+    # supposed to be [0.0, -5.0, 0.0]
 
 

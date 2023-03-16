@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scene>
+	<obj>
+		<obj_id>6</obj_id>
+		<obj_name>mug.ply</obj_name>
+		<obj_path>Models/mug/mug.ply</obj_path>
+		<pos_in_world>0.15715419049036572 0.22355259177346024 0.05993128516529627</pos_in_world>
+		<ori_in_world>-0.0003537041708928363 0.0011465168591966981 -0.8430830583638199 0.5377820349289841</ori_in_world>
+	</obj>
+</scene>
