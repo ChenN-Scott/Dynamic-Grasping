@@ -210,12 +210,16 @@ class Camera:
 
 # for test
 if __name__ == "__main__":
-    c = Camera(p,'scenes\scene_0000',[0,0,1],[0,1,0],[0,1,1]);
+    c = Camera(p,'scenes\scene_0000\kinect',[0,0,1],[0,1,0],[0,1,1]);
     print(c.world2camera([0,1,2]))
     # supposed to be [0.0, -1.414, 0.0]
 
-    c = Camera(p,'scenes\scene_0000',[0,0,3],[0,4,0],[0,3,4]);
+    c = Camera(p,'scenes\scene_0000\kinect',[0,0,3],[0,4,0],[0,3,4]);
     print(c.world2camera([0,3,7]))
     # supposed to be [0.0, -5.0, 0.0]
+
+    c = Camera(p,'scenes\scene_0000\kinect',[0,0,3],[4,0,0],[3,0,4]);
+    print(c.world2camera([0,3,7]))
+    # supposed to be [-5.0, 0.0, 0.0]
 
 

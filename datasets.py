@@ -69,9 +69,6 @@ class Datasets():
         self.indent(root)
         tree.write(self.annotation_path + '/%04d'%id + '.xml', encoding='utf-8', xml_declaration=True)
 
-    def save_pos_ori(self, target_pose, target_orn):
-        pass
-
     def indent(self, elem, level=0):
         i = "\n" + level*"\t"
         if len(elem):
