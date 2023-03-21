@@ -55,9 +55,10 @@ class Camera:
 
     def Cal_OutMatrix(self, pose, point, head):
         point = [point[i] - pose[i] for i in range(len(point))]
-        temp1 = -self.Determinant_2(head[2],head[1],point[2],point[1])
-        temp2 = -self.Determinant_2(head[0],head[2],point[0],point[2])
-        temp3 = -self.Determinant_2(head[1],head[0],point[1],point[0])
+
+        temp1 = self.Determinant_2(head[2],head[1],point[2],point[1])
+        temp2 = self.Determinant_2(head[0],head[2],point[0],point[2])
+        temp3 = self.Determinant_2(head[1],head[0],point[1],point[0])
 
         judge = math.sqrt(math.pow(temp1,2)+math.pow(temp2,2)+math.pow(temp3,2))
         [a1, a2, a3] = [1/judge * i for i in [temp1, temp2, temp3]]
@@ -66,8 +67,9 @@ class Camera:
         [b1, b2, b3] = [1/judge * i for i in [-head[0], -head[1], -head[2]]]
 
         judge = math.sqrt(point[0]*point[0]+point[1]*point[1]+point[2]*point[2])
-        [c1, c2, c3] = [1/judge * i for i in [-point[0], -point[1], -point[2]]]
-        return np.array(([a1,a2,a3,pose[0]],[b1,b2,b3,pose[1]],[c1,c2,c3,pose[2]],[0,0,0,1]),dtype=float)
+        [c1, c2, c3] = [1/judge * i for i in [point[0], point[1], point[2]]]
+
+        return np.array(([a1,b1,c1,pose[0]],[a2,b2,c2,pose[1]],[a3,b3,c3,pose[2]],[0,0,0,1]),dtype=float)
 
     def Determinant_2(self,a,b,c,d):
         return a*d-b*c
@@ -83,7 +85,6 @@ class Camera:
         pt_in_img = np.array([[pt[0]], [pt[1]], [1]], dtype=np.float)
         ret = np.matmul(np.linalg.inv(self.InMatrix), pt_in_img) * dep
         return list(ret.reshape((3,)))
-        # print('坐标 = ', ret)
     
     def camera2img(self, coord):
         """
@@ -95,7 +96,6 @@ class Camera:
         z = coord[2]
         coord = np.array(coord).reshape((3, 1))
         rc = (np.matmul(self.InMatrix, coord) / z).reshape((3,))
-
         return list(rc)[:-1]
 
     def length_TO_pixels(self, l, dep):
@@ -210,16 +210,15 @@ class Camera:
 
 # for test
 if __name__ == "__main__":
-    c = Camera(p,'scenes\scene_0000\kinect',[0,0,1],[0,1,0],[0,1,1]);
-    print(c.world2camera([0,1,2]))
-    # supposed to be [0.0, -1.414, 0.0]
+    c = Camera(p,'scenes\scene_0001\kinect',[1,0,1],[1,1,0],[0,1,1]);
+    print(c.world2camera([0,3,0]))
+    print(c.ExMatrix)
+    # supposed to be [-1.0, -1.4142135623730954, 2.8284271247461903]
 
-    c = Camera(p,'scenes\scene_0000\kinect',[0,0,3],[0,4,0],[0,3,4]);
-    print(c.world2camera([0,3,7]))
-    # supposed to be [0.0, -5.0, 0.0]
-
-    c = Camera(p,'scenes\scene_0000\kinect',[0,0,3],[4,0,0],[3,0,4]);
+    c = Camera(p,'scenes\scene_0001\kinect',[5,0,3],[5,4,0],[0,3,4]);
     print(c.world2camera([0,3,7]))
     # supposed to be [-5.0, 0.0, 0.0]
+
+    
 
 

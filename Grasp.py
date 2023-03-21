@@ -88,21 +88,8 @@ def run():
             camera.render_Image(py, target_id)
         if this_time - start_time >= 15:
             break
-        
-        # pass
-        # # 检测按键
-        # # keys = p.getKeyboardEvents()
-        # # if ord('1') in keys and keys[ord('1')]&p.KEY_WAS_TRIGGERED:
-        # #     # 渲染图像
-        # #     env.renderURDFImage(save_path=img_path)
-        # # if ord('2') in keys and keys[ord('2')]&p.KEY_WAS_TRIGGERED:
-        # #     env.conveyor.step()
-        # # # 按3重置环境            
-        # # if ord('3') in keys and keys[ord('3')]&p.KEY_WAS_TRIGGERED:
-        # #     env.removeObjsInURDF()
-        # #     break
     camera.save_Image(args.object_name)
 
 if __name__ == "__main__":
     run()
-    #python Grasp.py --object_name mug --scene_id 1
+    #python Grasp.py --object_name mug --scene_id 0

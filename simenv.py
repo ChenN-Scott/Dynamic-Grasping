@@ -34,9 +34,6 @@ class SimEnv():
         # self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
         self.scene_path = scene_path
 
-
-        self.img_list = []
-
         # 加载传送带
         self.mesh_dir = os.path.abspath('Models')
         self.conveyor_speed = 0.5
@@ -106,16 +103,10 @@ class SimEnv():
             pu.draw_line(self.conveyor.start_pose[0], self.conveyor.target_pose[0])
             # p.resetDebugVisualizerCamera(cameraDistance=1.3, cameraYaw=theta + 90, cameraPitch=-35,
             #                              cameraTargetPosition=(0.0, 0.0, 0.0))
-            # return ([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.3], [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0], [0, 1, 0])
+
             return ([self.conveyor.target_pose[0][0], self.conveyor.target_pose[0][1], 0.5], 
-                    [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2, (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2, 0],
-                    [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2-self.conveyor.start_pose[0][0], (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2-self.conveyor.start_pose[0][1], 1]
-            )
-            # self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3, 
-            #                                             (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0.8], 
-            #                                             [(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3,
-            #                                              (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0],
-            #                                              [0, -1, 0])
+                     [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2, (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2, 0],
+                     [(self.conveyor.start_pose[0][0] - self.conveyor.target_pose[0][0])/2, (self.conveyor.start_pose[0][1] - self.conveyor.target_pose[0][1])/2, 0.5])
             return distance, theta, length, direction, target_quaternion, np.array(z_start_end).tolist()
 
         elif mode == 'hand_over':
@@ -143,12 +134,6 @@ class SimEnv():
         angle = np.random.uniform(-pi, pi)
         orientation = p.getQuaternionFromEuler([0, 0, angle])
         return list(orientation)
-
-    def renderURDFImage(self, id, object_name):
-        """
-        渲染图像
-        """
-        target_pose, target_orn = p.getBasePositionAndOrientation(self.target_id)
 
 if __name__ == "__main__":
     cid = p.connect(p.GUI)
