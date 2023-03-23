@@ -13,6 +13,7 @@ from datasets import Datasets
 import panda_sim_grasp as panda_sim
 from math import pi, cos, sin, sqrt, atan, radians, degrees
 import tool
+from make_utils import obj_dict
 
 class SimEnv():
     def __init__(self, bullet_client, scene_path):
@@ -49,13 +50,14 @@ class SimEnv():
         """
         加载单个obj物体
         """
-        object_mesh_filepath = os.path.join(self.mesh_dir, '{}'.format(object_name), '{}.obj'.format(object_name))   #物体的obj文件路径    
+        object_mesh_filepath = os.path.join(self.mesh_dir, '{}'.format(str(obj_dict[object_name]).zfill(3)), 'textured.obj')   #物体的obj文件路径    
         target_mesh = trimesh.load_mesh(object_mesh_filepath)    #导入物体obj信息
         target_extents = target_mesh.bounding_box.extents.tolist()   #不知道干什么的
         floor_offset = target_mesh.bounds.min(0)[2]   #不知道干什么的        
         target_z = -target_mesh.bounds.min(0)[2] + self.conveyor_thickness   #物体的z坐标
         target_initial_pose = [[0.3, 0.3, target_z], [0, 0, 0, 1]]   #初始化物体位姿坐标
-        target_urdf = 'Models/{}/{}_target.urdf'.format(object_name, object_name)   #导入物体的urdf文件
+        target_urdf = 'Models/{}/{}_target.urdf'.format(str(obj_dict[object_name]).zfill(3), object_name)   #导入物体的urdf文件
+        print(target_urdf)
         self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
         p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
         return self.target_id
@@ -113,6 +115,10 @@ class SimEnv():
             raise NotImplementedError
         else:
             raise NotImplementedError
+
+    def remove_all(self):
+        p.removeBody(self.target_id)
+        p.removeBody(self.conveyor.id)
 
     def sample_convey_linear_motion(self, dist=None, theta=None, length=None, direction=None):
         """ theta is in degrees """

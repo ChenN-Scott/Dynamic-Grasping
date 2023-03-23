@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scene>
 	<obj>
-		<obj_id>6</obj_id>
-		<obj_name>mug.ply</obj_name>
-		<obj_path>Models/mug/mug.ply</obj_path>
-		<pos_in_world>0.01688036846472638 0.29920743567222 0.059925002830588006</pos_in_world>
-		<ori_in_world>0.0010221448449908783 -0.0018053226517083345 0.666800592055192 0.7452332966694956</ori_in_world>
+		<obj_id>0</obj_id>
+		<obj_name>cracker_box.ply</obj_name>
+		<obj_path>Models/cracker_box/cracker_box.ply</obj_path>
+		<pos_in_world>-0.18390533374525783 0.18080785503334326 0.1323872724972123</pos_in_world>
+		<ori_in_world>0.06430759596760711 0.15575055970669388 -0.42653257539897865 0.8886373041772628</ori_in_world>
 	</obj>
 </scene>

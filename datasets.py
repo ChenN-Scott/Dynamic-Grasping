@@ -4,21 +4,7 @@ import cv2
 import tool
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
-
-obj_dict = {'bleach_cleanser':1,
-            'bowl':2,
-            'cracker_box':3,
-            'cube':4,
-            'master_chef_can':5,
-            'mug':6,
-            'mustard_bottle':7,
-            'potted_meat_can':8,
-            'power_drill':9,
-            'power_drill_bkup':10,
-            'pudding_box':11,
-            'sugar_box':12,
-            'tomato_soup_can':13}
-
+from make_utils import obj_dict
 class Datasets():
     def __init__(self, kinect_path):
         self.kinect_path = kinect_path

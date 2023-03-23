@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scene>
 	<obj>
-		<obj_id>6</obj_id>
-		<obj_name>mug.ply</obj_name>
-		<obj_path>Models/mug/mug.ply</obj_path>
-		<pos_in_world>0.3426353008502017 0.3089908389606072 0.059802054328002986</pos_in_world>
-		<ori_in_world>-0.0006653981191755458 -0.0005503030109252603 0.029279187211158634 0.9995708997405802</ori_in_world>
+		<obj_id>1</obj_id>
+		<obj_name>tomato_soup_can.ply</obj_name>
+		<obj_path>Models/tomato_soup_can/tomato_soup_can.ply</obj_path>
+		<pos_in_world>-0.3563737672250817 -0.24656270813758918 0.11339995810651574</pos_in_world>
+		<ori_in_world>-0.005981494431730477 -0.008717232009951647 -0.14271346354041725 0.9897075825286709</ori_in_world>
 	</obj>
 </scene>
