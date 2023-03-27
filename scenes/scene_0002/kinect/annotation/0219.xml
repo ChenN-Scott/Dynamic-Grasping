@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scene>
 	<obj>
-		<obj_id>6</obj_id>
-		<obj_name>mug.ply</obj_name>
-		<obj_path>Models/mug/mug.ply</obj_path>
-		<pos_in_world>0.10694400391521554 0.18873401243024318 0.05992993739071976</pos_in_world>
-		<ori_in_world>-0.0008813379974220878 -0.0010338092702017018 0.9570723619328327 0.2898459047598153</ori_in_world>
+		<obj_id>2</obj_id>
+		<obj_name>sugar_box.ply</obj_name>
+		<obj_path>Models/002/nontextured.ply</obj_path>
+		<pos_in_world>-0.05939739106151696 -0.2943178292363732 0.08021628979561563</pos_in_world>
+		<ori_in_world>-0.0010915807286331898 -0.00022522503069483877 -0.13092586358284583 0.9913915351516193</ori_in_world>
 	</obj>
 </scene>

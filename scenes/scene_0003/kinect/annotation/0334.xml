@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scene>
+	<obj>
+		<obj_id>0</obj_id>
+		<obj_name>cracker_box.ply</obj_name>
+		<obj_path>Models/000/nontextured.ply</obj_path>
+		<pos_in_world>0.2738673685912466 0.0564615334181188 0.13252501176517598</pos_in_world>
+		<ori_in_world>0.0005929093093120707 -0.0007859370206368545 0.8031153629918693 0.5958227458632211</ori_in_world>
+	</obj>
+</scene>

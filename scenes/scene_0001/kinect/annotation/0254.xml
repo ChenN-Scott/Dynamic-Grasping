@@ -3,8 +3,8 @@
 	<obj>
 		<obj_id>1</obj_id>
 		<obj_name>tomato_soup_can.ply</obj_name>
-		<obj_path>Models/tomato_soup_can/tomato_soup_can.ply</obj_path>
-		<pos_in_world>0.0703861324284409 -0.1377587595432613 0.11342085445477862</pos_in_world>
-		<ori_in_world>0.002834279778095826 0.004410234262568794 -0.20087006788826664 0.9796038650997922</ori_in_world>
+		<obj_path>Models/001/nontextured.ply</obj_path>
+		<pos_in_world>0.23032319946402058 -0.11859494762416108 0.11331516007112942</pos_in_world>
+		<ori_in_world>-0.0006513095680164155 -0.002739710485348324 0.8536216367924201 0.5208859481519272</ori_in_world>
 	</obj>
 </scene>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scene>
+	<obj>
+		<obj_id>7</obj_id>
+		<obj_name>mug.ply</obj_name>
+		<obj_path>Models/007/nontextured.ply</obj_path>
+		<pos_in_world>0.1649046592420263 0.12007542184889533 0.05990566468983827</pos_in_world>
+		<ori_in_world>0.0014603166634158333 -0.0004505529778973756 0.9952891364134107 -0.09693915315652307</ori_in_world>
+	</obj>
+</scene>
