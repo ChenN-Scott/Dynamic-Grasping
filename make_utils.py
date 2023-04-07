@@ -95,15 +95,22 @@ def find_obj_name(obj_dict, model_id):
     return object_name[0]
 
 if __name__ == "__main__":
-    model_path = os.path.abspath('Models')
+    model_path = 'D:/data/Models'
     model_id = 0
     for i in range(len(obj_dict)):
-        obj_name = find_obj_name(obj_dict, model_id)[0]
-        os.system('rm Models/{}/{}_target.urdf'.format(str(model_id).zfill(3), obj_name))
-        os.system('cp -ifu Models/object_template.urdf Models/{}/{}_target.urdf'.format(str(model_id).zfill(3), obj_name))
+        obj_name = find_obj_name(obj_dict, model_id)
+        os.system('rm {}/{}/{}_target.urdf'.format(model_path, str(model_id).zfill(3), obj_name))
+        os.system('rm {}/{}/{}_target.urdf'.format(model_path, str(model_id).zfill(3), obj_name[0]))
+        os.system('cp -ifu {}/object_template.urdf {}/{}/{}_target.urdf'.format(model_path, model_path, str(model_id).zfill(3), obj_name))
         urdf_path = os.path.join(model_path,'{}'.format(str(model_id).zfill(3)),'{}_target.urdf'.format(obj_name))
-        obj_path = "D:/code/Dynamic-Grasping/Models/{}/textured.obj".format(str(model_id).zfill(3))
+        obj_path = "{}/{}/textured.obj".format(model_path, str(model_id).zfill(3))
 
         os.system('sed -i \"s\object_name.obj\{}\g\" {}'.format(str(obj_path), str(urdf_path)))
         os.system('sed -i \"s\object_name\{}\g\" {}'.format(str(obj_name), str(urdf_path)))
         model_id = model_id+1
+    
+    # run = []
+    # for i in range(len(obj_dict)):
+    #     run.append('python main.py --obj_name {} --scene_id {}\n'.format(find_obj_name(obj_dict, i), i))
+    #     with open('test.sh', 'a') as f:
+    #         f.write(run[i])

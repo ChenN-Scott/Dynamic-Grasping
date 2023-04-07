@@ -13,6 +13,7 @@ from datasets import Datasets
 import panda_sim_grasp as panda_sim
 from math import pi, cos, sin, sqrt, atan, radians, degrees
 import tool
+from make_utils import obj_dict
 
 class SimEnv():
     def __init__(self, bullet_client, scene_path):
@@ -34,13 +35,10 @@ class SimEnv():
         # self.panda = panda_sim.PandaSimAuto(p, [0, 0, 0])
         self.scene_path = scene_path
 
-
-        self.img_list = []
-
         # 加载传送带
-        self.mesh_dir = os.path.abspath('Models')
+        self.mesh_dir = os.path.abspath('D:/data/Models')
         self.conveyor_speed = 0.5
-        self.conveyor_urdf = os.path.abspath('Models/conveyor.urdf')
+        self.conveyor_urdf = os.path.abspath('D:/data/Models/conveyor/conveyor.urdf')
         self.conveyor_thickness = 0.02
         self.conveyor_initial_pose = [[0.3, 0.3, self.conveyor_thickness/2], [0, 0, 0, 1]]
         self.conveyor = Conveyor(self.conveyor_initial_pose, self.conveyor_urdf) 
@@ -52,13 +50,14 @@ class SimEnv():
         """
         加载单个obj物体
         """
-        object_mesh_filepath = os.path.join(self.mesh_dir, '{}'.format(object_name), '{}.obj'.format(object_name))   #物体的obj文件路径    
+        object_mesh_filepath = os.path.join(self.mesh_dir, '{}'.format(str(obj_dict[object_name]).zfill(3)), 'textured.obj')   #物体的obj文件路径    
         target_mesh = trimesh.load_mesh(object_mesh_filepath)    #导入物体obj信息
         target_extents = target_mesh.bounding_box.extents.tolist()   #不知道干什么的
         floor_offset = target_mesh.bounds.min(0)[2]   #不知道干什么的        
         target_z = -target_mesh.bounds.min(0)[2] + self.conveyor_thickness   #物体的z坐标
         target_initial_pose = [[0.3, 0.3, target_z], [0, 0, 0, 1]]   #初始化物体位姿坐标
-        target_urdf = 'Models/{}/{}_target.urdf'.format(object_name, object_name)   #导入物体的urdf文件
+        target_urdf = os.path.abspath('D:/data/Models/{}/{}_target.urdf'.format(str(obj_dict[object_name]).zfill(3), object_name))   #导入物体的urdf文件
+        print(target_urdf)
         self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
         p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
         return self.target_id
@@ -106,22 +105,20 @@ class SimEnv():
             pu.draw_line(self.conveyor.start_pose[0], self.conveyor.target_pose[0])
             # p.resetDebugVisualizerCamera(cameraDistance=1.3, cameraYaw=theta + 90, cameraPitch=-35,
             #                              cameraTargetPosition=(0.0, 0.0, 0.0))
-            # return ([self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0.3], [self.conveyor.start_pose[0][0], self.conveyor.start_pose[0][1], 0], [0, 1, 0])
+
             return ([self.conveyor.target_pose[0][0], self.conveyor.target_pose[0][1], 0.5], 
-                    [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2, (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2, 0],
-                    [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2-self.conveyor.start_pose[0][0], (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2-self.conveyor.start_pose[0][1], 1]
-            )
-            # self.viewMatrix = self.p.computeViewMatrix([(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3, 
-            #                                             (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0.8], 
-            #                                             [(self.conveyor.start_pose[0][0]+self.conveyor.target_pose[0][0])*1/3,
-            #                                              (self.conveyor.start_pose[0][1]+self.conveyor.target_pose[0][1])*1/3, 0],
-            #                                              [0, -1, 0])
+                     [(self.conveyor.target_pose[0][0] + self.conveyor.start_pose[0][0])/2, (self.conveyor.target_pose[0][1] + self.conveyor.start_pose[0][1])/2, 0],
+                     [(self.conveyor.start_pose[0][0] - self.conveyor.target_pose[0][0])/2, (self.conveyor.start_pose[0][1] - self.conveyor.target_pose[0][1])/2, 0.5])
             return distance, theta, length, direction, target_quaternion, np.array(z_start_end).tolist()
 
         elif mode == 'hand_over':
             raise NotImplementedError
         else:
             raise NotImplementedError
+
+    def remove_all(self):
+        p.removeBody(self.target_id)
+        p.removeBody(self.conveyor.id)
 
     def sample_convey_linear_motion(self, dist=None, theta=None, length=None, direction=None):
         """ theta is in degrees """
@@ -144,12 +141,20 @@ class SimEnv():
         orientation = p.getQuaternionFromEuler([0, 0, angle])
         return list(orientation)
 
-    def renderURDFImage(self, id, object_name):
-        """
-        渲染图像
-        """
-        target_pose, target_orn = p.getBasePositionAndOrientation(self.target_id)
-
 if __name__ == "__main__":
     cid = p.connect(p.GUI)
     env = SimEnv(p,'scenes\scene_0000')
+    conveyor_mesh_filepath = os.path.join(env.mesh_dir, 'conveyor', 'conveyor.obj')
+    target_mesh = trimesh.load_mesh(conveyor_mesh_filepath)    #导入物体obj信息 
+    target_initial_pose = [[0, 0, 0], [0, 0, 0, 1]]   #初始化物体位姿坐标
+    target_urdf = 'Models\conveyor\conveyor.urdf'   #导入物体的urdf文件
+    target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
+    p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
+
+    time.sleep(0.5)
+    start_time = time.time()
+    last_time = time.time()
+    p.setRealTimeSimulation(1)
+
+    while True:
+        pass

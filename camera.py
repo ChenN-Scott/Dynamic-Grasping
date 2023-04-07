@@ -52,6 +52,7 @@ class Camera:
         self.datasets = Datasets(self.kinect_path)
         self.img_list = []
         self.pos_list = []
+        self.conveyor_list = []
 
     def Cal_OutMatrix(self, pose, point, head):
         point = [point[i] - pose[i] for i in range(len(point))]
@@ -173,13 +174,15 @@ class Camera:
         """
         np.save(os.path.join(self.kinect_path,'Intrinsics.npy'),np.array(self.InMatrix))
 
-    def render_Image(self, py, target_id):
+    def render_Image(self, py, target_id, conveyor_id):
         img = py.getCameraImage(IMAGEWIDTH, IMAGEHEIGHT, self.viewMatrix, self.projectionMatrix, renderer=p.ER_BULLET_HARDWARE_OPENGL)
         target_pose, target_orn = p.getBasePositionAndOrientation(target_id)
+        conveyor_pose, conveyor_orn = p.getBasePositionAndOrientation(conveyor_id)
         self.img_list.append(img)
         self.pos_list.append([target_pose, target_orn])
+        # self.conveyor_list.append([conveyor_pose, conveyor_orn])
 
-    def save_Image(self, object_name):
+    def save_data(self, object_name):
         id = 0
         for img in self.img_list:
             w = img[0]      # width of the image, in pixels
@@ -206,6 +209,10 @@ class Camera:
         for pos in self.pos_list:
             self.datasets.save_annotation(id, object_name, pos[0], pos[1])
             id = id+1
+        # id = 0
+        # for pos in self.conveyor_list:
+        #     self.datasets.save_conveyor(id, pos[0], pos[1])
+        #     id = id+1
 
 
 # for test

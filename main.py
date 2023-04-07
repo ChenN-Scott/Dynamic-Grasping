@@ -17,7 +17,9 @@ GRASP_DEPTH = 0.005
 
 def get_args():
     parser = argparse.ArgumentParser(description='Run Dynamic Grasping Experiment')
-    parser.add_argument('--mode_name', type=str, default='dynamic_linear')
+    parser.add_argument('--mode_name', type = str, default = 'dynamic_linear')
+    parser.add_argument('--obj_name', type = str, default = 'mug')
+    parser.add_argument('--scene_id', type = int, default = 0)
     args = parser.parse_args()
     return args
 
@@ -40,10 +42,8 @@ def run():
     args = get_args()
     cid = p.connect(p.GUI)  # 连接服务器
 
-    model_id = 7
-    scene_id = 7
     # 初始化虚拟环境
-    scene_path = 'scenes' + '\scene_%04d'%scene_id
+    scene_path = os.path.abspath('D:\data\scenes' + '\scene_%04d'%args.scene_id)
     if not os.path.exists(scene_path):
         os.mkdir(scene_path)
     env = SimEnv(p, scene_path) 
@@ -55,7 +55,7 @@ def run():
     # x y z width的单位是m, angle的单位是弧度
 
     # 加载物体
-    object_name = find_obj_name(obj_dict, model_id)
+    object_name = find_obj_name(obj_dict, args.scene_id)
     target_id = env.loadObjInURDF(object_name)
     cam_pos = env.reset(mode=args.mode_name)
     py = env.get_p()
@@ -87,12 +87,11 @@ def run():
         if this_time - last_time >= duration:
             print('{:8f}'.format(this_time - last_time)) 
             last_time = this_time
-            camera.render_Image(py, target_id)
+            camera.render_Image(py, target_id, env.conveyor.id)
         if this_time - start_time >= 25:
             break
-    camera.save_Image(object_name)
-    model_id = model_id+1
+    camera.save_data(object_name)
 
 if __name__ == "__main__":
     run()
-    #python Grasp.py
+    #python Grasp.py -- 

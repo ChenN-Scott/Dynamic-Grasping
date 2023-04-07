@@ -23,6 +23,10 @@ class Datasets():
         if not os.path.exists(self.annotation_path):
             os.mkdir(self.annotation_path)
 
+        self.conveyor_path = os.path.join(self.kinect_path,'conveyor')
+        if not os.path.exists(self.conveyor_path):
+            os.mkdir(self.conveyor_path)
+
     def create_obj_id_list(self, object_name):
         np.savetxt('./obj_id_list', obj_dict[object_name], fmt="%d", delimiter="\n")
 
@@ -31,6 +35,20 @@ class Datasets():
 
     def save_depth(self, id, im_depth):
         cv2.imwrite(self.depth_path + '/%04d'%id+'.png', im_depth)
+
+    def save_conveyor(self, id, pos, ori):
+        root = ET.Element('scene')
+        tree = ET.ElementTree(root)
+        conveyor = ET.Element("conveyor")
+        conveyor_pos_in_world = ET.Element("conveyor_pos_in_world")
+        conveyor_ori_in_world = ET.Element("conveyor_ori_in_world")
+        conveyor_pos_in_world.text = '{} {} {}'.format(pos[0],pos[1],pos[2])
+        conveyor_ori_in_world.text = '{} {} {} {}'.format(ori[0], ori[1], ori[2], ori[3])
+        conveyor.append(conveyor_pos_in_world)
+        conveyor.append(conveyor_ori_in_world)
+        root.append(conveyor)
+        self.indent(root)
+        tree.write(self.conveyor_path + '/%04d'%id + '.xml', encoding='utf-8', xml_declaration=True)
 
     def save_annotation(self, id, object_name, pos, ori):
         root = ET.Element('scene')
@@ -43,7 +61,7 @@ class Datasets():
         ori_in_world = ET.Element("ori_in_world")
         obj_id.text = '{}'.format(obj_dict[object_name])
         obj_name.text = '{}.ply'.format(object_name)
-        obj_path.text = 'Models/{}/nontextured.ply'.format(str(obj_dict[object_name]).zfill(3))
+        obj_path.text = 'D:/data/Models/{}/nontextured.ply'.format(str(obj_dict[object_name]).zfill(3))
         pos_in_world.text = '{} {} {}'.format(pos[0],pos[1],pos[2])
         ori_in_world.text = '{} {} {} {}'.format(ori[0], ori[1], ori[2], ori[3])
         obj.append(obj_id)
@@ -71,5 +89,5 @@ class Datasets():
                 elem.tail = i
 
 if __name__ == "__main__":
-    data = Datasets('scenes\scene_0000')
+    data = Datasets('D:/data/scenes')
     data.save_annotation(4,'mug',[6,7,8],[0,0,0,1])

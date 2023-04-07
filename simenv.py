@@ -36,9 +36,9 @@ class SimEnv():
         self.scene_path = scene_path
 
         # 加载传送带
-        self.mesh_dir = os.path.abspath('Models')
+        self.mesh_dir = os.path.abspath('D:/data/Models')
         self.conveyor_speed = 0.5
-        self.conveyor_urdf = os.path.abspath('Models/conveyor.urdf')
+        self.conveyor_urdf = os.path.abspath('D:/data/Models/conveyor/conveyor.urdf')
         self.conveyor_thickness = 0.02
         self.conveyor_initial_pose = [[0.3, 0.3, self.conveyor_thickness/2], [0, 0, 0, 1]]
         self.conveyor = Conveyor(self.conveyor_initial_pose, self.conveyor_urdf) 
@@ -56,7 +56,7 @@ class SimEnv():
         floor_offset = target_mesh.bounds.min(0)[2]   #不知道干什么的        
         target_z = -target_mesh.bounds.min(0)[2] + self.conveyor_thickness   #物体的z坐标
         target_initial_pose = [[0.3, 0.3, target_z], [0, 0, 0, 1]]   #初始化物体位姿坐标
-        target_urdf = 'Models/{}/{}_target.urdf'.format(str(obj_dict[object_name]).zfill(3), object_name)   #导入物体的urdf文件
+        target_urdf = os.path.abspath('D:/data/Models/{}/{}_target.urdf'.format(str(obj_dict[object_name]).zfill(3), object_name))   #导入物体的urdf文件
         print(target_urdf)
         self.target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
         p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
@@ -144,3 +144,17 @@ class SimEnv():
 if __name__ == "__main__":
     cid = p.connect(p.GUI)
     env = SimEnv(p,'scenes\scene_0000')
+    conveyor_mesh_filepath = os.path.join(env.mesh_dir, 'conveyor', 'conveyor.obj')
+    target_mesh = trimesh.load_mesh(conveyor_mesh_filepath)    #导入物体obj信息 
+    target_initial_pose = [[0, 0, 0], [0, 0, 0, 1]]   #初始化物体位姿坐标
+    target_urdf = 'Models\conveyor\conveyor.urdf'   #导入物体的urdf文件
+    target_id = p.loadURDF(target_urdf, target_initial_pose[0], target_initial_pose[1])   #加载物体，获得物体id     
+    p.setPhysicsEngineParameter(numSolverIterations=150, enableConeFriction=1, contactBreakingThreshold=1e-3)   
+
+    time.sleep(0.5)
+    start_time = time.time()
+    last_time = time.time()
+    p.setRealTimeSimulation(1)
+
+    while True:
+        pass
